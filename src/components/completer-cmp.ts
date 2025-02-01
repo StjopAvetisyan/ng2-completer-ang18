@@ -1,12 +1,24 @@
 "use strict";
-import { AfterViewChecked, ChangeDetectorRef, Component, Input, Output, EventEmitter, OnInit, ViewChild, forwardRef, AfterViewInit, ElementRef } from "@angular/core";
-import { ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR } from "@angular/forms";
+import {
+    AfterViewChecked,
+    ChangeDetectorRef,
+    Component,
+    Input,
+    Output,
+    EventEmitter,
+    OnInit,
+    ViewChild,
+    forwardRef,
+    AfterViewInit,
+    ElementRef
+} from "@angular/core";
+import {ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR} from "@angular/forms";
 
-import { CtrCompleter } from "../directives/ctr-completer";
-import { CompleterData } from "../services/completer-data";
-import { CompleterService } from "../services/completer-service";
-import { CompleterItem } from "./completer-item";
-import { MAX_CHARS, MIN_SEARCH_LENGTH, PAUSE, TEXT_SEARCHING, TEXT_NO_RESULTS, isNil } from "../globals";
+import {CtrCompleter} from "../directives/ctr-completer";
+import {CompleterData} from "../services/completer-data";
+import {CompleterService} from "../services/completer-service";
+import {CompleterItem} from "./completer-item";
+import {MAX_CHARS, MIN_SEARCH_LENGTH, PAUSE, TEXT_SEARCHING, TEXT_NO_RESULTS, isNil} from "../globals";
 
 
 const noop = () => {
@@ -25,19 +37,20 @@ const COMPLETER_CONTROL_VALUE_ACCESSOR = {
     template: `
         <div class="completer-holder" ctrCompleter>
             <input #ctrInput [attr.id]="inputId.length > 0 ? inputId : null" type="search"
-                class="completer-input" ctrInput [ngClass]="inputClass"
-                [(ngModel)]="searchStr" (ngModelChange)="onChange($event)"
-                [attr.name]="inputName" [placeholder]="placeholder"
-                [attr.maxlength]="maxChars" [tabindex]="fieldTabindex" [disabled]="disableInput"
-                [clearSelected]="clearSelected" [clearUnselected]="clearUnselected"
-                [overrideSuggested]="overrideSuggested" [openOnFocus]="openOnFocus" [fillHighlighted]="fillHighlighted"
-                [openOnClick]="openOnClick" [selectOnClick]="selectOnClick" [selectOnFocus]="selectOnFocus"
-                (blur)="onBlur()" (focus)="onFocus()" (keyup)="onKeyup($event)"
-                (keydown)="onKeydown($event)" (click)="onClick($event)"
-                autocomplete="off" autocorrect="off" autocapitalize="off" />
+                   class="completer-input" ctrInput [ngClass]="inputClass"
+                   [(ngModel)]="searchStr" (ngModelChange)="onChange($event)"
+                   [attr.name]="inputName" [placeholder]="placeholder"
+                   [attr.maxlength]="maxChars" [tabindex]="fieldTabindex" [disabled]="disableInput"
+                   [clearSelected]="clearSelected" [clearUnselected]="clearUnselected"
+                   [overrideSuggested]="overrideSuggested" [openOnFocus]="openOnFocus"
+                   [fillHighlighted]="fillHighlighted"
+                   [openOnClick]="openOnClick" [selectOnClick]="selectOnClick" [selectOnFocus]="selectOnFocus"
+                   (blur)="onBlur()" (focus)="onFocus()" (keyup)="onKeyup($event)"
+                   (keydown)="onKeydown($event)" (click)="onClick($event)"
+                   autocomplete="off" autocorrect="off" autocapitalize="off"/>
 
             <div class="completer-dropdown-holder"
-                *ctrList="dataService;
+                 *ctrList="dataService;
                     minSearchLength: minSearchLength;
                     pause: pause;
                     autoMatch: autoMatch;
@@ -49,24 +62,26 @@ const COMPLETER_CONTROL_VALUE_ACCESSOR = {
                     let isInitialized = searchInitialized;
                     let isOpen = isOpen;">
                 <div class="completer-dropdown" ctrDropdown
-                    *ngIf="isInitialized && isOpen && (( items?.length > 0|| (displayNoResults && !searchActive)) || (searchActive && displaySearching))">
+                     *ngIf="isInitialized && isOpen && (( items?.length > 0|| (displayNoResults && !searchActive)) || (searchActive && displaySearching))">
                     <div *ngIf="searchActive && displaySearching" class="completer-searching">{{ _textSearching }}</div>
                     <div *ngIf="!searchActive && (!items || items?.length === 0)"
-                    class="completer-no-results">{{ _textNoResults }}</div>
+                         class="completer-no-results">{{ _textNoResults }}
+                    </div>
                     <div class="completer-row-wrapper" *ngFor="let item of items; let rowIndex=index">
                         <div class="completer-row" [ctrRow]="rowIndex" [dataItem]="item">
                             <div *ngIf="item.image || item.image === ''" class="completer-image-holder">
-                                <img *ngIf="item.image != ''" src="{{item.image}}" class="completer-image" />
+                                <img *ngIf="item.image != ''" src="{{item.image}}" class="completer-image"/>
                                 <div *ngIf="item.image === ''" class="completer-image-default"></div>
                             </div>
                             <div class="completer-item-text"
-                            [ngClass]="{'completer-item-text-image': item.image || item.image === '' }">
+                                 [ngClass]="{'completer-item-text-image': item.image || item.image === '' }">
                                 <completer-list-item
-                                class="completer-title" [text]="item.title" [matchClass]="matchClass"
-                                [searchStr]="searchStr" [type]="'title'"></completer-list-item>
+                                        class="completer-title" [text]="item.title" [matchClass]="matchClass"
+                                        [searchStr]="searchStr" [type]="'title'"></completer-list-item>
                                 <completer-list-item *ngIf="item.description && item.description != ''"
-                                class="completer-description" [text]="item.description"
-                                    [matchClass]="matchClass" [searchStr]="searchStr" [type]="'description'">
+                                                     class="completer-description" [text]="item.description"
+                                                     [matchClass]="matchClass" [searchStr]="searchStr"
+                                                     [type]="'description'">
                                 </completer-list-item>
                             </div>
                         </div>
@@ -76,52 +91,53 @@ const COMPLETER_CONTROL_VALUE_ACCESSOR = {
         </div>
     `,
     styles: [`
-    .completer-dropdown {
-        border-color: #ececec;
-        border-width: 1px;
-        border-style: solid;
-        border-radius: 2px;
-        width: 250px;
-        padding: 6px;
-        cursor: pointer;
-        z-index: 9999;
-        position: absolute;
-        margin-top: -6px;
-        background-color: #ffffff;
-    }
+        .completer-dropdown {
+            border-color: #ececec;
+            border-width: 1px;
+            border-style: solid;
+            border-radius: 2px;
+            width: 250px;
+            padding: 6px;
+            cursor: pointer;
+            z-index: 9999;
+            position: absolute;
+            margin-top: -6px;
+            background-color: #ffffff;
+        }
 
-    .completer-row {
-        padding: 5px;
-        color: #000000;
-        margin-bottom: 4px;
-        clear: both;
-        display: inline-block;
-        width: 103%;
-    }
+        .completer-row {
+            padding: 5px;
+            color: #000000;
+            margin-bottom: 4px;
+            clear: both;
+            display: inline-block;
+            width: 103%;
+        }
 
-    .completer-selected-row {
-        background-color: lightblue;
-        color: #ffffff;
-    }
+        .completer-selected-row {
+            background-color: lightblue;
+            color: #ffffff;
+        }
 
-    .completer-description {
-        font-size: 14px;
-    }
+        .completer-description {
+            font-size: 14px;
+        }
 
-    .completer-image-default {
-        width: 16px;
-        height: 16px;
-        background-image: url("demo/res/img/default.png");
-    }
+        .completer-image-default {
+            width: 16px;
+            height: 16px;
+            background-image: url("demo/res/img/default.png");
+        }
 
-    .completer-image-holder {
-        float: left;
-        width: 10%;
-    }
-    .completer-item-text-image {
-        float: right;
-        width: 90%;
-    }
+        .completer-image-holder {
+            float: left;
+            width: 10%;
+        }
+
+        .completer-item-text-image {
+            float: right;
+            width: 90%;
+        }
     `],
     providers: [COMPLETER_CONTROL_VALUE_ACCESSOR]
 })
@@ -159,8 +175,8 @@ export class CompleterCmp implements ControlValueAccessor, AfterViewChecked, Aft
     @Output() public keyup: EventEmitter<any> = new EventEmitter();
     @Output() public keydown: EventEmitter<any> = new EventEmitter();
 
-    @ViewChild(CtrCompleter, { static: false }) public completer: CtrCompleter | undefined;
-    @ViewChild("ctrInput", { static: false }) public ctrInput: ElementRef | undefined;
+    @ViewChild(CtrCompleter, {static: false}) public completer: CtrCompleter | undefined;
+    @ViewChild("ctrInput", {static: false}) public ctrInput: ElementRef | undefined;
 
     public control = new FormControl("");
     public displaySearching = true;
@@ -174,9 +190,12 @@ export class CompleterCmp implements ControlValueAccessor, AfterViewChecked, Aft
     private _open: boolean = false;
     private _searchStr = "";
 
-    constructor(private completerService: CompleterService, private cdr: ChangeDetectorRef) { }
+    constructor(private completerService: CompleterService, private cdr: ChangeDetectorRef) {
+    }
 
-    public get value(): any { return this.searchStr; };
+    public get value(): any {
+        return this.searchStr;
+    };
 
     public set value(v: any) {
         if (v !== this.searchStr) {
@@ -202,7 +221,7 @@ export class CompleterCmp implements ControlValueAccessor, AfterViewChecked, Aft
         if (this.autofocus) {
             this._focus = true;
         }
-        
+
         if (!this.completer) {
             return;
         }
